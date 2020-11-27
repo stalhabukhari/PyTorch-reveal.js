@@ -1,0 +1,301 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<title>PyTorch-reveal.js</title>
+
+		<link rel="stylesheet" href="reveal.js/dist/reset.css">
+		<link rel="stylesheet" href="reveal.js/dist/reveal.css">
+		<link rel="stylesheet" href="reveal.js/dist/theme/black.css" id="theme">
+		<link rel="icon" href="assets/images/pytorch_favicon.ico">
+		<!-- Theme used for syntax highlighted code -->
+		<link rel="stylesheet" href="reveal.js/plugin/highlight/zenburn.css" id="highlight-theme">
+    <!-- For overriding Reveal.js defaults -->
+    <link rel="stylesheet" href="assets/css/slides.css">
+
+	</head>
+	<body>
+    <!-- Hierarchy: reveal > slides > section -->
+		<div class="reveal">
+
+      <!-- Beginning Presentations -->
+			<div class="slides">
+
+        <!-- Intro Page -->
+				<section>
+					<h1>PyTorch <span style="color: #ff55ff">|</span> Deep Learning</h1>
+				</section>
+
+				<!-- What is PyToch? -->
+				<section>
+					<section>
+						<h2> What is PyTorch? </h2>
+						<ul>
+							<li class="fragment fade-in">Open-source Machine Learning library</li>
+							<li class="fragment fade-in">Based on the Torch library (Lua)</li>
+							<li class="fragment fade-in">Employed at:
+								<ul>
+									<li>Facebook AI Research</li>
+									<li>Tesla Autopilot</li>
+									<li>Uber AI</li>
+								</ul>
+							</li>
+						</ul>
+					</section>
+					<section>
+						<h2> What is PyTorch? </h2>
+						<ul>
+							<li class="fragment fade-in">Tape-based Automatic Differentiation</li>
+							<li class="fragment fade-in">Computations with GPU Acceleration</li>
+						</ul>
+						<footer class="fragment fade-in" style="color:#ffff00">and much more...</footer>
+					</section>
+					<section>
+						<h2> PyTorch Tensor </h2>
+						<img data-src="assets/images/pytorch_tensor.svg">
+					</section>
+					<section>
+						<h2> PyTorch Tensor </h2>
+						<img data-src="assets/images/pytorch_parameter.svg">
+						<p>Parameters of interest!</p>
+						<code>(x.requires_grad=True)</code> $\cap$ <code>(x.is_leaf=True)</code>
+					</section>
+				</section>
+
+				<!-- AD -->
+				<section>
+					<section>
+						<h2> Automatic Differentiation (<em>AD</em>) </h2>
+						<ul>
+						<li class="fragment fade-in">Implementing backprop by hand is cumbersome!</li>
+						<li class="fragment fade-in">Gradient-based Learning: Derivatives!</li>
+						<li class="fragment fade-in">A way to compute derivatives automatically?</li>
+						</ul>
+					</section>
+					<section>
+						<h2> Automatic Differentiation (<em>AD</em>) </h2>
+						<ul>
+						<li><span style="color:#ffff00">It is not</span>: Numerical Differentiation
+						<ul>
+						<li>Expensive (forward pass for each derivative)</li>
+						<li>Numerical error gets propagated!!</li>
+						</ul>
+						</li>
+						<li class="fragment fade-in">In contrast, <em>AD</em> is efficient and numerically stable.</li>
+						</ul>
+					</section>
+					<section>
+						<h2>Automatic Differentiation (<em>AD</em>)</h2>
+						<ul>
+						<li><span style="color:#ffff00">It is not</span>: Symbolic Differentiation
+							<ul><li>Complicated expressions (redundant)</li></ul>
+						</li>
+						<li class="fragment fade-in"><em>AD</em> provides the computed value and not the expression.</li>
+						</ul>
+					</section>
+					<section>
+						<h2>Example</h2>
+					  <table class="reveal" cellspacing="0" cellpadding="0">
+							<tr>
+					      <td> <span style="font-weight:bold">Expression</span> </td>
+					      <td> <span style="font-weight:bold">Derivative</span> </td>
+					    </tr>
+							<tr>
+					      <td>initialize: $w, b$ </td>
+					      <td>$ \frac{\partial\mathcal{L}}{\partial w}=\frac{\partial\mathcal{L}}{\partial z} x, \frac{\partial\mathcal{L}}{\partial b}=\frac{\partial\mathcal{L}}{\partial z} $</td>
+					    </tr>
+					    <tr>
+					      <td>$ z=wx+b $</td>
+					      <td>$ \frac{\partial\mathcal{L}}{\partial z}=\frac{\partial\mathcal{L}}{\partial y}\sigma^{'}(z) $</td>
+					    </tr>
+							<tr>
+					      <td>$ y=\sigma(z) $</td>
+					      <td>$ \frac{\partial \mathcal{L}}{\partial y}=y-t $</td>
+					    </tr>
+							<tr>
+					      <td>$ \mathcal{L}=\frac{1}{2}(y-t)^2 $</td>
+					      <td>$ \frac{\partial\mathcal{L}}{\partial\mathcal{L}}=1 $</td>
+					    </tr>
+					  </table>
+						<footer>Reference: <a href="https://www.cs.toronto.edu/~rgrosse/courses/csc321_2018/slides/lec10.pdf">CSC312@Toronto</a></footer>
+					</section>
+					<section>
+						<h2>Example: <code>torch.autograd</code></h2>
+						<pre class="python"><code data-trim data-noescape data-line-numbers="3-5|7-9|11-12">
+						import torch
+
+						w = torch.tensor([1.2], requires_grad=True)
+						b = torch.tensor([-0.4], requires_grad=True)
+						x, t = torch.tensor([2.0]), torch.tensor([1.0])
+
+						z = w*x + b
+						y = torch.sigmoid(z)
+						L = 0.5*(y-t)**2
+
+						L.backward()    # compute dL/dw, dL/db
+						w.grad, b.grad  # (tensor([-0.0250]), tensor([-0.0125]))
+						</code></pre>
+						<footer class="fragment fade-in">
+							<span style="color:#ffff00">backend</span>: convertion to primitive ops...
+						</footer>
+					</section>
+					<section>
+						<h2>Example: <code>torch.autograd</code></h2>
+						<pre class="python"><code data-line-numbers data-trim data-noescape>
+						# higher-order derivatives
+						import torch
+
+						x = torch.tensor([3.], requires_grad=True)
+						y = x**2
+
+						dy_dx = torch.autograd.grad(y, x, create_graph=True) <span class="fragment fade-in"># 6</span>
+						d2y_dx2 = torch.autograd.grad(dy_dx, x) <span class="fragment fade-in"># 2</span>
+						</code></pre>
+					</section>
+					<section>
+						<code>torch.autograd</code>: An engine for computing vector-Jacobian products!
+						<medium>Head over to the <a href="https://pytorch.org/docs/stable/autograd.html"><code>torch.autograd</code> Documentation</a></medium>
+					</section>
+        </section/>
+
+				<!-- GPU -->
+				<section>
+					<section>
+						<h2>Why GPU?</h2>
+						<ul>
+							<li>Data-parallelism!</li>
+							<li>Neural Networks: Parallel processing systems</li>
+						</ul>
+					</section>
+					<section>
+						<h2>Shifting to GPU</h2>
+						<pre><code class="pythonrepl" data-trim data-noescape>
+						>> import torch
+						>> x = torch.tensor([2.])   <span class="fragment fade-in"># defined on CPU</span>
+						>> x.device()
+						device(type='cpu')
+						>> x_gpu = x.cuda()         <span class="fragment fade-in"># shifted to GPU</span>
+						>> x_gpu
+						tensor([2.], device='cuda:0')
+						</pre></code>
+					</section>
+				</section>
+
+				<!-- Optimization Loop -->
+				<section>
+					<h2>Optimization Loop</h2>
+					<img data-src="assets/images/optimization_loop.svg">
+				</section>
+
+				<!-- Linear Regression -->
+				<section>
+					<h2>Example: Linear Regression</h2>
+					<img data-src="assets/images/linear_regression.svg">
+				</section>
+				<section data-background-iframe="assets/notebooks/linear_regression.slides.html">
+				</section>
+				<section>
+					<h3>Why are we doing Linear Regression?</h3>
+				</section>
+
+				<!-- Going Futher -->
+				<section>
+					<section>
+						<h3>Example: <code>Image Classification Network</code></h3>
+						<img data-src="assets/images/fashion_mnist.svg">
+					</section>
+					<section>
+						<h3>Example: <code>Image Classification Network</code></h3>
+						<pre class="python"><code data-line-numbers="4|5-13|15-23" data-trim data-noescape>
+							import torch.nn as nn
+							import torch.nn.Functional as F
+
+							class NeuralNetwork(torch.nn.Module):
+							  def __init__(self):
+							    self.conv1 = torch.nn.Conv2d(in_channels=3,
+							          out_channels=64, kernel_size=(3,3))
+							    self.conv2 = torch.nn.Conv2d(in_channels=64,
+							          out_channels=128, kernel_size=(3,3))
+							    self.maxpool = torch.nn.MaxPool2D(kernel_size=(3,3))
+							    self.linear1 = torch.nn.Linear(..., 128)
+							    self.linear2 = torch.nn.Linear(128, 64)
+							    self.linear3 = torch.nn.Linear(64, 10)
+
+							  def forward(self, x):
+							    x = F.relu(self.conv1(x))
+							    x = F.relu(self.conv2(x))
+							    x = self.maxpool(x)
+							    x = torch.flatten(x, 1)
+							    x = F.relu(self.linear1(x))
+							    x = F.relu(self.linear2(x))
+							    x = F.softmax(self.linear3(x))
+							    return x
+						</code></pre>
+					</section>
+					<section>
+						<h2>Built-in Modules</h2>
+						<ul>
+							<li><code>torch.nn</code></li>
+							<li><code>torch.optim</code></li>
+							<li><code>torch.utils</code></li>
+						</ul>
+					</section>
+				</section>
+
+				<!-- Some more interesting things -->
+				<section>
+					<h2>Advanced Practices</h2>
+					<ul>
+						<li>Data Augmentation</li>
+						<li>Tensorboard</li>
+						<li>Multiprocessing</li>
+						<li>Multi-GPU training</li>
+					</ul>
+				</section>
+
+				<!-- Questions -->
+				<section>
+					<h2>Questions?</h2>
+				</section>
+
+			</div>
+		</div>
+
+		<script src="reveal.js/dist/reveal.js"></script>
+		<script src="reveal.js/plugin/notes/notes.js"></script>
+		<script src="reveal.js/plugin/markdown/markdown.js"></script>
+		<script src="reveal.js/plugin/highlight/highlight.js"></script>
+    <script src="reveal.js/plugin/math/math.js"></script>
+    <script src="reveal.js/plugin/zoom/zoom.js"></script>
+		<script>
+			// More info about initialization & config:
+			// - https://revealjs.com/initialization/
+			// - https://revealjs.com/config/
+
+			Reveal.initialize({
+        // Parallax background image
+        parallaxBackgroundImage: "assets/images/pytorch_background.jpg",
+        // Parallax background size
+        parallaxBackgroundSize: "2100px 900px",
+
+				hash: true,
+        controls: true,
+        progress: true,
+        loop: false,
+				history: false,
+        transition: 'fade',
+        backgroundTransition: 'slide',
+				width: 1280,
+			  height: 960,
+			  minScale: '0.2',
+			  maxScale: '1.5',
+
+				// Learn about plugins: https://revealjs.com/plugins/
+        plugins: [ RevealMarkdown, RevealHighlight, RevealNotes, RevealMath, RevealZoom ]
+
+			});
+		</script>
+	</body>
+</html>

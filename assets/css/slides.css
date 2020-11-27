@@ -1,0 +1,44 @@
+/* CSS */
+/* .make-it-pop {
+  filter: drop-shadow(0 0 10px purple);
+} */
+
+.table-border th, .table-border td, .table-border tr {
+  border-collapse: collapse;
+  border: 1px solid black;
+}
+
+.reveal h1,
+.reveal h2,
+.reveal h3,
+.reveal h4,
+.reveal h5,
+.reveal h6{
+  text-transform: none;
+}
+
+.reveal footer {
+  position: absolute;
+  bottom: -5em;
+  left: 30em;
+  font-size: 0.75em;
+  font-style: italic;
+  text-transform: none;
+}
+
+.reveal table {
+  border: none;
+}
+
+.reveal pre code {
+  font-size: 1.3em;
+  line-height: 1.5;
+}
+
+.reveal code {
+  font-family: monospace;
+  font-weight: bold;
+  text-transform: none;
+}
+
+/*For arrows n shit:*/
